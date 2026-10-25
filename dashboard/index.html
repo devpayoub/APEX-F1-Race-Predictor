@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>APEX — F1 Race Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">A</div>
+    <div>
+      <div class="brand-name">Apex</div>
+      <div class="brand-sub">Race Intelligence</div>
+    </div>
+  </div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-race">
+    <div class="topbar-race-name" id="tb-race">—</div>
+    <div class="topbar-race-meta" id="tb-meta">—</div>
+  </div>
+  <div class="topbar-right">
+    <div class="countdown">
+      <div class="countdown-label" id="cd-label">Lights out in</div>
+      <div class="countdown-value" id="cd-value">--:--:--</div>
+    </div>
+    <button class="ghost-btn" id="btn-refresh" title="Reload data">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M14 8a6 6 0 1 1-1.8-4.3M14 2v4h-4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<main class="shell" id="app">
+  <div class="loading" id="loading">Loading race model…</div>
+</main>
+
+<template id="tpl-dashboard">
+  <div class="banner" id="banner"></div>
+
+  <!-- ------------------------------------------------------------- hero -->
+  <section class="hero reveal">
+    <div class="hero-track">
+      <svg viewBox="0 0 200 120" aria-label="Circuit layout">
+        <path d="M22 94 L156 94 Q172 94 172 78 L172 50 Q172 36 158 36 L146 36 Q137 36 133 29 Q128 20 117 20 L107 20 Q97 20 94 28 Q90 36 80 36 L48 36 Q32 36 30 52 L26 80 Q25 94 22 94 Z"
+              fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="22" cy="94" r="2.6" fill="#E10600" stroke="none" />
+      </svg>
+    </div>
+
+    <div class="hero-main">
+      <div class="hero-eyebrow">
+        <span id="hero-season">2026</span>
+        <span class="round-pill" id="hero-round">Round 18</span>
+        <span>Predicted classification</span>
+      </div>
+      <h1 class="hero-title" id="hero-title">—</h1>
+      <div class="hero-location" id="hero-location">—</div>
+      <div class="chips" id="hero-chips"></div>
+    </div>
+
+    <div class="hero-side">
+      <div class="confidence" id="hero-confidence"><span class="pulse"></span><span>Confidence</span></div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-label">Simulations</div>
+          <div class="hero-stat-value" id="hero-sims">—</div>
+        </div>
+        <div>
+          <div class="hero-stat-label">Generated</div>
+          <div class="hero-stat-value" id="hero-generated">—</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <!-- ------------------------------------------------------- podium -->
+    <section class="card col-7 reveal" style="animation-delay:.06s">
+      <div class="card-head">
+        <span class="card-title">Podium Projection</span>
+        <span class="card-hint" id="podium-hint">—</span>
+      </div>
+      <div class="card-body">
+        <div class="podium" id="podium"></div>
+        <div class="analysis" id="analysis"></div>
+        <div class="movers" id="movers"></div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------- bars -->
+    <section class="card col-5 reveal" style="animation-delay:.12s">
+      <div class="card-head">
+        <span class="card-title">Win Probability</span>
+        <span class="card-hint">Monte Carlo + prior</span>
+      </div>
+      <div class="card-body">
+        <div class="bars" id="bars"></div>
+      </div>
+    </section>
+
+    <!-- --------------------------------------------------------- table -->
+    <section class="card col-12 reveal" style="animation-delay:.18s">
+      <div class="card-head">
+        <span class="card-title">Full Grid Prediction</span>
+        <span class="card-hint">Click a column to sort · hover a row to cross-highlight</span>
+      </div>
+      <div class="table-wrap">
+        <table class="grid-table" id="grid-table">
+          <thead>
+            <tr>
+              <th data-key="position">Pos</th>
+              <th data-key="code" style="text-align:left">Driver</th>
+              <th data-key="grid">Grid</th>
+              <th data-key="grid_delta">Δ</th>
+              <th data-key="win_prob">Win %</th>
+              <th data-key="podium_prob">Podium %</th>
+              <th data-key="points_prob">Points %</th>
+              <th data-key="expected_finish">Exp. Fin</th>
+              <th data-key="deg_rate">Deg s/lap</th>
+              <th data-key="strategy" style="text-align:left">Strategy</th>
+              <th data-key="dnf_prob">DNF %</th>
+            </tr>
+          </thead>
+          <tbody id="grid-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------- scatter -->
+    <section class="card col-7 reveal" style="animation-delay:.24s">
+      <div class="card-head">
+        <span class="card-title">Pace Analysis</span>
+        <span class="card-hint">Qualifying vs race-trim delta</span>
+      </div>
+      <div class="card-body">
+        <div class="scatter-wrap">
+          <svg class="scatter-svg" id="scatter" viewBox="0 0 620 340" role="img" aria-label="Qualifying versus race pace scatter"></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ------------------------------------------------------ strategy -->
+    <section class="card col-5 reveal" style="animation-delay:.3s">
+      <div class="card-head">
+        <span class="card-title">Strategy &amp; Conditions</span>
+        <span class="card-hint" id="strategy-hint">—</span>
+      </div>
+      <div class="card-body">
+        <div class="stint-list" id="stints"></div>
+        <div class="conditions" id="conditions"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ------------------------------------------------------- methodology -->
+  <details class="method reveal" style="animation-delay:.36s; margin-top:20px">
+    <summary>Methodology &amp; sources</summary>
+    <div class="method-body">
+      <div>
+        <h4>How this was produced</h4>
+        <ul id="method-notes"></ul>
+      </div>
+      <div>
+        <h4>Model</h4>
+        <ul id="method-model"></ul>
+        <h4 style="margin-top:16px">Data sources</h4>
+        <div class="source-tags" id="source-tags"></div>
+      </div>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <div class="foot-warn" id="foot-warn"></div>
+    <div class="mono" id="foot-stamp"></div>
+  </footer>
+</template>
+
+<script src="prediction.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

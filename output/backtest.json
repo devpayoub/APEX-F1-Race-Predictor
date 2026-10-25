@@ -1,0 +1,267 @@
+{
+  "season": 2026,
+  "rounds": 17,
+  "prior_seasons": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "mae": 3.595,
+  "brier": 0.6938,
+  "top3_hit_rate": 0.706,
+  "calibration_sweep": [
+    {
+      "shrink_to_uniform": 0.0,
+      "brier": 0.6938
+    },
+    {
+      "shrink_to_uniform": 0.08,
+      "brier": 0.6898
+    },
+    {
+      "shrink_to_uniform": 0.16,
+      "brier": 0.69
+    },
+    {
+      "shrink_to_uniform": 0.24,
+      "brier": 0.6946
+    },
+    {
+      "shrink_to_uniform": 0.32,
+      "brier": 0.7036
+    },
+    {
+      "shrink_to_uniform": 0.4,
+      "brier": 0.7168
+    },
+    {
+      "shrink_to_uniform": 0.5,
+      "brier": 0.7395
+    }
+  ],
+  "suggested_shrinkage": 0.08,
+  "detail": [
+    {
+      "round": 1,
+      "race": "Australian Grand Prix",
+      "mae": 4.543181818181818,
+      "brier": 0.9443346199999999,
+      "winner": "RUS",
+      "winner_in_top3": false,
+      "predicted_top3": [
+        "SAI",
+        "LEC",
+        "HAM"
+      ]
+    },
+    {
+      "round": 2,
+      "race": "Chinese Grand Prix",
+      "mae": 4.565,
+      "brier": 0.9356509699999999,
+      "winner": "ANT",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "RUS",
+        "ANT",
+        "HAM"
+      ]
+    },
+    {
+      "round": 3,
+      "race": "Japanese Grand Prix",
+      "mae": 2.6109090909090913,
+      "brier": 0.32542041,
+      "winner": "ANT",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "HAM",
+        "LEC",
+        "ANT"
+      ]
+    },
+    {
+      "round": 4,
+      "race": "Miami Grand Prix",
+      "mae": 3.6904545454545454,
+      "brier": 1.04784328,
+      "winner": "ANT",
+      "winner_in_top3": false,
+      "predicted_top3": [
+        "PIA",
+        "NOR",
+        "LEC"
+      ]
+    },
+    {
+      "round": 5,
+      "race": "Canadian Grand Prix",
+      "mae": 5.315,
+      "brier": 0.7043488099999999,
+      "winner": "ANT",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "RUS",
+        "ANT",
+        "NOR"
+      ]
+    },
+    {
+      "round": 6,
+      "race": "Monaco Grand Prix",
+      "mae": 5.550454545454546,
+      "brier": 0.5687722599999999,
+      "winner": "ANT",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "VER",
+        "ANT",
+        "RUS"
+      ]
+    },
+    {
+      "round": 7,
+      "race": "Barcelona Grand Prix",
+      "mae": 3.0063636363636363,
+      "brier": 1.0145950200000002,
+      "winner": "HAM",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "RUS",
+        "NOR",
+        "HAM"
+      ]
+    },
+    {
+      "round": 8,
+      "race": "Austrian Grand Prix",
+      "mae": 2.5213636363636365,
+      "brier": 0.19141359999999996,
+      "winner": "RUS",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "RUS",
+        "ANT",
+        "HAD"
+      ]
+    },
+    {
+      "round": 9,
+      "race": "British Grand Prix",
+      "mae": 3.6990909090909088,
+      "brier": 1.3029472899999994,
+      "winner": "LEC",
+      "winner_in_top3": false,
+      "predicted_top3": [
+        "ANT",
+        "HAM",
+        "VER"
+      ]
+    },
+    {
+      "round": 10,
+      "race": "Belgian Grand Prix",
+      "mae": 2.206818181818182,
+      "brier": 0.13413287999999998,
+      "winner": "ANT",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "ANT",
+        "LEC",
+        "RUS"
+      ]
+    },
+    {
+      "round": 11,
+      "race": "Hungarian Grand Prix",
+      "mae": 2.5945454545454543,
+      "brier": 0.94296967,
+      "winner": "NOR",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "LEC",
+        "HAM",
+        "NOR"
+      ]
+    },
+    {
+      "round": 12,
+      "race": "Dutch Grand Prix",
+      "mae": 3.6963636363636367,
+      "brier": 1.3272139299999997,
+      "winner": "NOR",
+      "winner_in_top3": false,
+      "predicted_top3": [
+        "VER",
+        "LEC",
+        "RUS"
+      ]
+    },
+    {
+      "round": 13,
+      "race": "Italian Grand Prix",
+      "mae": 3.2340909090909093,
+      "brier": 1.5811088900000003,
+      "winner": "ANT",
+      "winner_in_top3": false,
+      "predicted_top3": [
+        "VER",
+        "HAM",
+        "NOR"
+      ]
+    },
+    {
+      "round": 14,
+      "race": "Spanish Grand Prix",
+      "mae": 3.652272727272727,
+      "brier": 0.25626818000000007,
+      "winner": "ANT",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "LEC",
+        "ANT",
+        "RUS"
+      ]
+    },
+    {
+      "round": 15,
+      "race": "Azerbaijan Grand Prix",
+      "mae": 4.450909090909091,
+      "brier": 0.2646025000000001,
+      "winner": "RUS",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "RUS",
+        "VER",
+        "PIA"
+      ]
+    },
+    {
+      "round": 16,
+      "race": "Bahrain Grand Prix in Malaysia",
+      "mae": 3.377272727272727,
+      "brier": 0.10767870999999998,
+      "winner": "VER",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "VER",
+        "HAD",
+        "PIA"
+      ]
+    },
+    {
+      "round": 17,
+      "race": "Singapore Grand Prix",
+      "mae": 2.401818181818182,
+      "brier": 0.14569171000000009,
+      "winner": "VER",
+      "winner_in_top3": true,
+      "predicted_top3": [
+        "VER",
+        "LEC",
+        "RUS"
+      ]
+    }
+  ]
+}

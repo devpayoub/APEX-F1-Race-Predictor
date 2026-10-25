@@ -1,0 +1,25 @@
+# virtualenv
+.venv/
+venv/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# generated screenshots (docs/dashboard.png is the committed one)
+output/dash.png
+output/_*.json
+docs/_raw.png
+
+# local agent workspace (not part of the project)
+.workbuddy-ai/
+
+# os
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
