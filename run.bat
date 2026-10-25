@@ -10,7 +10,7 @@ echo   APEX - F1 Race Predictor
 echo  ==========================================
 
 if not exist "%VENV_PY%" goto setup
-"%VENV_PY%" -c "import numpy, pandas, sklearn, requests" >nul 2>&1
+"%VENV_PY%" -c "import numpy, sklearn, requests, flask" >nul 2>&1
 if errorlevel 1 goto setup
 goto run
 

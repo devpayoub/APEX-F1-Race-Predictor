@@ -50,7 +50,7 @@ python app.py                   # web UI
 python run.py --date 2026-10-25 # CLI
 ```
 
-> The system `python` on PATH usually has no numpy/pandas. Always run through
+> The system `python` on PATH usually has no numpy/scikit-learn. Always run through
 > `run.bat`, or activate `.venv` first — otherwise you will get
 > `ModuleNotFoundError: No module named 'numpy'`.
 

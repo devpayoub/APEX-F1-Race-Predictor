@@ -29,7 +29,7 @@ except ModuleNotFoundError as exc:
     sys.stderr.write(
         "\n"
         f"  Missing dependency: {missing}\n\n"
-        "  This project needs numpy, pandas, scikit-learn and requests, which are\n"
+        "  This project needs Flask, numpy, scikit-learn and requests, which are\n"
         "  installed into a project-local virtual environment -- not your system Python.\n"
         "\n"
         "  Easiest fix on Windows:\n"
