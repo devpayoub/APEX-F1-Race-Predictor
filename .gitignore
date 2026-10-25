@@ -12,6 +12,8 @@ __pycache__/
 output/dash.png
 output/_*.json
 docs/_raw.png
+output/_*.png
+output/_*.log
 
 # local agent workspace (not part of the project)
 .workbuddy-ai/

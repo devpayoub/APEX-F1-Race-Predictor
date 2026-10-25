@@ -157,8 +157,19 @@ def _merge_practice(*dicts: dict[int, dict]) -> dict[int, dict]:
 
 # ---------------------------------------------------------------- core round --
 def run_round(season: int, rnd: int, sims: int, target_date: dt.date | None = None,
-              quiet: bool = False, prior=None) -> tuple[dict, dict]:
+              quiet: bool = False, prior=None, progress=None) -> tuple[dict, dict]:
     t0 = time.time()
+
+    def note(stage: str, pct: float) -> None:
+        """Optional progress callback so a web front-end can show a live stage."""
+        if progress is None:
+            return
+        try:
+            progress(stage, pct)
+        except Exception:  # noqa: BLE001
+            pass
+
+    note("resolving race", 0.04)
     race_meta = jolpica.race(season, rnd)
     if not race_meta:
         raise RuntimeError(f"Jolpica has no race for {season} round {rnd}")
@@ -175,11 +186,13 @@ def run_round(season: int, rnd: int, sims: int, target_date: dt.date | None = No
     if "race" not in keys:
         raise RuntimeError("no race session in OpenF1 for this meeting")
 
+    note("loading session data", 0.14)
     drivers = openf1.drivers(keys["race"])
     if not drivers:
         raise RuntimeError("no driver list available")
 
     # ---- qualifying ----
+    note("reading qualifying", 0.28)
     quali_rows = openf1.session_result(keys["quali"]) if "quali" in keys else []
     quali = features.extract_quali(quali_rows, drivers)
 
@@ -191,6 +204,7 @@ def run_round(season: int, rnd: int, sims: int, target_date: dt.date | None = No
             grid_map[int(num)] = int(pos)
 
     # ---- practice long runs ----
+    note("analysing practice long runs", 0.42)
     practice: dict[int, dict] = {}
     for tag in ("fp2", "fp3", "fp1"):
         if tag not in keys:
@@ -203,6 +217,7 @@ def run_round(season: int, rnd: int, sims: int, target_date: dt.date | None = No
             continue
 
     # ---- priors ----
+    note("building form and circuit priors", 0.56)
     form = features.rolling_form(jolpica.season_results(season))
     circ_drv, circ_team = features.circuit_history(jolpica.circuit_results(circuit_id))
 
@@ -230,15 +245,18 @@ def run_round(season: int, rnd: int, sims: int, target_date: dt.date | None = No
     conditions["expected_strategy"] = "1-stop M-H"
 
     # ---- simulate ----
+    note("running Monte Carlo simulation", 0.66)
     sim = simulate.simulate(feats, circuit, n_sims=sims)
 
     # ---- ML prior ----
+    note("scoring historical prior", 0.86)
     if prior is None:
         prior = ml_model.train([2022, 2023, 2024, 2025, 2026])
     total_rounds = len(jolpica.schedule(season)) or 24
     buckets = ml_model.predict(prior, feats, int(race_meta.get("round") or rnd), total_rounds)
 
     blended = blend.blend(feats, sim, buckets)
+    note("blending and calibrating", 0.94)
 
     avg_conf = sum(f.confidence for f in feats) / len(feats)
     model_confidence = "high" if avg_conf > 0.78 else ("medium" if avg_conf > 0.6 else "low")
@@ -286,6 +304,7 @@ def run_round(season: int, rnd: int, sims: int, target_date: dt.date | None = No
         notes=notes,
     )
 
+    note("assembling output", 0.99)
     diag = {
         "elapsed": round(time.time() - t0, 1),
         "drivers": len(feats),

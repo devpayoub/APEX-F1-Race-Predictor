@@ -12,7 +12,18 @@ The engineering plan and UI design brief live in [`f1.md`](f1.md).
 
 ## Quick start
 
-### Windows — one click
+Two ways to run it. The **web app** gives you buttons; the **CLI** gives you a terminal table.
+
+### Web app — with buttons
+
+```bash
+python app.py            # http://localhost:5000
+```
+
+Pick a Grand Prix, choose how many simulations, press **Run prediction**. The page
+polls the job and re-renders when it lands. Same thing on Windows via `run.bat --web`.
+
+### CLI — one click on Windows
 
 Double-click **`run.bat`**, or from a terminal:
 
@@ -35,14 +46,16 @@ python -m venv .venv
 # source .venv/bin/activate     # macOS / Linux
 pip install -r requirements.txt
 
-python run.py --date 2026-10-25
+python app.py                   # web UI
+python run.py --date 2026-10-25 # CLI
 ```
 
 > The system `python` on PATH usually has no numpy/pandas. Always run through
 > `run.bat`, or activate `.venv` first — otherwise you will get
 > `ModuleNotFoundError: No module named 'numpy'`.
 
-Open `dashboard/index.html` directly in a browser — no server, no build step.
+The dashboard also works as a plain file (`dashboard/index.html`) — no server, no
+build step — but the buttons are disabled there, since live predictions need the API.
 
 ### If something breaks
 
@@ -52,9 +65,56 @@ Open `dashboard/index.html` directly in a browser — no server, no build step.
 | `run.bat` says dependency installation failed | Check the network, then run `run.bat` again — it retries the install. |
 | `.venv` stops working after a Python update | Delete the `.venv` folder and run `run.bat` again; it rebuilds from whatever Python is on your PATH. |
 | `run.py` reports `FastF1 unavailable` | Expected — see the data-source note below. The forecast is unaffected. |
-| Dashboard shows `No prediction data found` | Run `run.bat` once; it writes `dashboard/prediction.js`. |
+| Dashboard says `Static preview` | You opened the HTML directly. Run `python app.py` and use `http://localhost:5000`. |
+| Buttons greyed out | Same cause — no API. Start the server. |
 
-### Outputs
+---
+
+## Deploy to Render
+
+The repo ships a `render.yaml` blueprint, so Render can provision everything in one step.
+
+1. **New → Blueprint** in the Render dashboard, select this repository, apply.
+   (Or **New → Web Service** with the settings below.)
+2. Wait for the first build. `pip install -r requirements.txt` takes a couple of minutes.
+3. Open the URL, pick a race, press **Run prediction**.
+
+| Setting | Value |
+|---|---|
+| Build command | `pip install -r requirements.txt` |
+| Start command | `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120` |
+| Health check | `/api/health` |
+| Environment | `PYTHON_VERSION=3.12.5`, `F1_CACHE_DIR=/tmp/f1cache`, `F1_DEFAULT_SIMS=8000` |
+
+### Why one worker
+
+Predictions are CPU-bound and the trained prior lives in process memory. A single
+worker with 8 threads is both faster and correct — extra workers would each train
+their own prior and keep their own job queue, so a job started on one would 404 on
+another.
+
+### What the free tier does to you
+
+- **Spins down after 15 min idle.** The next visit takes ~15 s to wake; the prior is
+  retrained in a background thread at boot, so the page itself loads immediately.
+- **Ephemeral disk.** The API cache lives in `/tmp` and repopulates per instance.
+  Expect a slow first prediction after each cold start.
+- **512 MB RAM.** Comfortable at 8 000 simulations; 40 000 is available from the
+  dropdown if you want it.
+
+### API
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Liveness + whether the prior is trained |
+| `GET` | `/api/races?season=2026` | Schedule and the sensible default round |
+| `GET` | `/api/prediction` | Latest result (falls back to the committed one) |
+| `POST` | `/api/predict` | Queue a run — `{season, round, sims}` → `202 {job_id}` |
+| `GET` | `/api/jobs/<id>` | `{status, stage, progress, result?}` |
+
+---
+
+## Outputs
 
 | File | Purpose |
 |---|---|
@@ -161,8 +221,13 @@ FastF1 : skipped — F1's timing feed needs an account, so OpenF1 is used instea
 ## Layout
 
 ```
-run.bat                Windows launcher (creates .venv, installs deps, runs)
+app.py                 Flask web service: job queue + REST API for the buttons
 run.py                 CLI entrypoint
+run.bat                Windows launcher (creates .venv, installs deps, runs)
+render.yaml            Render blueprint (build, start, health check, env)
+Procfile               start command, if you deploy without the blueprint
+requirements.txt       runtime deps (no FastF1 — it adds ~150 MB and is unused)
+requirements-fastf1.txt  adds the optional telemetry layer
 src/
   config.py            circuit database, physics constants, model weights
   cache.py             JSON snapshot cache (~/.cache/f1predictor)
@@ -175,6 +240,7 @@ src/
   blend.py             ensemble, calibration, explainability
   report.py            JSON assembly
 dashboard/             index.html · styles.css · app.js · prediction.js
+docs/dashboard.png     README screenshot
 output/                prediction.json · backtest.json
 ```
 

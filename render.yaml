@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: apex-f1
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Python 3.12 is the version this model was validated against
+      - key: PYTHON_VERSION
+        value: "3.12.5"
+      # Render's disk is ephemeral; keep the API cache in /tmp so a single
+      # instance reuses its fetches for its whole lifetime
+      - key: F1_CACHE_DIR
+        value: /tmp/f1cache
+      # 8k simulations keeps a run near 6 s on the free instance size
+      - key: F1_DEFAULT_SIMS
+        value: "8000"
+      - key: F1_MAX_SIMS
+        value: "40000"

@@ -33,6 +33,7 @@ echo  Environment ready.
 echo.
 
 :run
+if /I "%~1"=="--web" goto web
 "%VENV_PY%" run.py %*
 set "RC=%ERRORLEVEL%"
 echo.
@@ -41,6 +42,17 @@ echo  Done. Open dashboard\index.html to view the forecast.
 echo.
 pause
 exit /b 0
+
+:web
+echo  Starting the web UI on http://localhost:5000
+echo  Press CTRL+C to stop.
+echo.
+start "" http://localhost:5000
+"%VENV_PY%" app.py
+set "RC=%ERRORLEVEL%"
+echo.
+pause
+exit /b %RC%
 
 :failed
 echo  [ERROR] run.py exited with code %RC%.

@@ -1,5 +1,6 @@
-fastf1>=3.9.0
-pandas>=2.2
+flask>=3.0
+gunicorn>=21.2
 numpy>=2.0
+pandas>=2.2
 scikit-learn>=1.5
 requests>=2.31

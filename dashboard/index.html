@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>APEX — F1 Race Intelligence</title>
+<meta name="description" content="Monte Carlo race predictions for Formula 1, built from OpenF1 and Jolpica timing data." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -29,23 +30,65 @@
       <div class="countdown-label" id="cd-label">Lights out in</div>
       <div class="countdown-value" id="cd-value">--:--:--</div>
     </div>
-    <button class="ghost-btn" id="btn-refresh" title="Reload data">
+    <button class="ghost-btn" id="btn-reload" title="Reload the page">
       <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
         <path d="M14 8a6 6 0 1 1-1.8-4.3M14 2v4h-4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Refresh
+      Reload
     </button>
   </div>
 </header>
 
-<main class="shell" id="app">
-  <div class="loading" id="loading">Loading race model…</div>
+<main class="shell">
+
+  <!-- ------------------------------------------------------- control deck -->
+  <section class="controls" id="controls">
+    <div class="ctrl">
+      <label class="ctrl-label" for="sel-season">Season</label>
+      <select class="ctrl-select" id="sel-season">
+        <option value="2026" selected>2026</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+      </select>
+    </div>
+
+    <div class="ctrl ctrl-grow">
+      <label class="ctrl-label" for="sel-race">Grand Prix</label>
+      <select class="ctrl-select" id="sel-race" disabled>
+        <option>Loading schedule…</option>
+      </select>
+    </div>
+
+    <div class="ctrl">
+      <label class="ctrl-label" for="sel-sims">Simulations</label>
+      <select class="ctrl-select" id="sel-sims">
+        <option value="4000">4 000</option>
+        <option value="8000" selected>8 000</option>
+        <option value="20000">20 000</option>
+        <option value="40000">40 000</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" id="btn-run">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M4 2.5v11l9-5.5-9-5.5z"/>
+      </svg>
+      <span id="btn-run-label">Run prediction</span>
+    </button>
+
+    <div class="ctrl-status" id="ctrl-status"></div>
+    <div class="job-progress" id="job-progress"><span id="job-progress-fill"></span></div>
+  </section>
+
+  <div id="app">
+    <div class="loading" id="loading">Loading race model…</div>
+  </div>
 </main>
 
+<!-- ============================================================ dashboard -->
 <template id="tpl-dashboard">
   <div class="banner" id="banner"></div>
 
-  <!-- ------------------------------------------------------------- hero -->
   <section class="hero reveal">
     <div class="hero-track">
       <svg viewBox="0 0 200 120" aria-label="Circuit layout">
@@ -82,7 +125,6 @@
   </section>
 
   <div class="layout">
-    <!-- ------------------------------------------------------- podium -->
     <section class="card col-7 reveal" style="animation-delay:.06s">
       <div class="card-head">
         <span class="card-title">Podium Projection</span>
@@ -95,7 +137,6 @@
       </div>
     </section>
 
-    <!-- ---------------------------------------------------------- bars -->
     <section class="card col-5 reveal" style="animation-delay:.12s">
       <div class="card-head">
         <span class="card-title">Win Probability</span>
@@ -106,7 +147,6 @@
       </div>
     </section>
 
-    <!-- --------------------------------------------------------- table -->
     <section class="card col-12 reveal" style="animation-delay:.18s">
       <div class="card-head">
         <span class="card-title">Full Grid Prediction</span>
@@ -134,7 +174,6 @@
       </div>
     </section>
 
-    <!-- ------------------------------------------------------- scatter -->
     <section class="card col-7 reveal" style="animation-delay:.24s">
       <div class="card-head">
         <span class="card-title">Pace Analysis</span>
@@ -147,7 +186,6 @@
       </div>
     </section>
 
-    <!-- ------------------------------------------------------ strategy -->
     <section class="card col-5 reveal" style="animation-delay:.3s">
       <div class="card-head">
         <span class="card-title">Strategy &amp; Conditions</span>
@@ -160,7 +198,6 @@
     </section>
   </div>
 
-  <!-- ------------------------------------------------------- methodology -->
   <details class="method reveal" style="animation-delay:.36s; margin-top:20px">
     <summary>Methodology &amp; sources</summary>
     <div class="method-body">
