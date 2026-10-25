@@ -20,22 +20,25 @@ Two ways to run it. The **web app** gives you buttons; the **CLI** gives you a t
 python app.py            # http://localhost:5000
 ```
 
+On Windows just double-click **`run.bat`** — it starts the server and opens your
+browser once it is listening. `run.bat --web` does the same thing explicitly.
+
 Pick a Grand Prix, choose how many simulations, press **Run prediction**. The page
-polls the job and re-renders when it lands. Same thing on Windows via `run.bat --web`.
+polls the job and re-renders when it lands.
 
-### CLI — one click on Windows
-
-Double-click **`run.bat`**, or from a terminal:
+### CLI — terminal table
 
 ```bat
-run.bat                          :: today's race
+run.bat --cli                    :: today's race
 run.bat --date 2026-10-25        :: specific date
 run.bat --round 18 --sims 20000  :: explicit round, more simulations
 run.bat --backtest               :: replay the season
 ```
 
+Or directly: `python run.py --date 2026-10-25`.
+
 The first run creates `.venv` and installs dependencies automatically (a few
-minutes); later runs start immediately. Any arguments are passed straight through
+minutes); later runs start immediately. Arguments are passed straight through
 to `run.py`.
 
 ### Manual / macOS / Linux

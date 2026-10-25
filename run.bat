@@ -3,16 +3,18 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 
 set "VENV_PY=%~dp0.venv\Scripts\python.exe"
+set "PORT=5000"
 
 echo.
 echo  ==========================================
 echo   APEX - F1 Race Predictor
 echo  ==========================================
 
+REM ---- dependency bootstrap (first run only) --------------------------
 if not exist "%VENV_PY%" goto setup
 "%VENV_PY%" -c "import numpy, sklearn, requests, flask" >nul 2>&1
 if errorlevel 1 goto setup
-goto run
+goto dispatch
 
 :setup
 echo.
@@ -32,27 +34,47 @@ if errorlevel 1 goto pipfail
 echo  Environment ready.
 echo.
 
-:run
+REM ---- what to run ----------------------------------------------------
+:dispatch
+if "%~1"=="" goto web
 if /I "%~1"=="--web" goto web
-"%VENV_PY%" run.py %*
-set "RC=%ERRORLEVEL%"
-echo.
-if not "%RC%"=="0" goto failed
-echo  Done. Open dashboard\index.html to view the forecast.
-echo.
-pause
-exit /b 0
+if /I "%~1"=="--local" goto web
+if /I "%~1"=="--cli" goto cli
+goto cli_args
 
+REM ---- local web app (default: double-click to test) ------------------
 :web
-echo  Starting the web UI on http://localhost:5000
-echo  Press CTRL+C to stop.
+echo  Local test mode
+echo  Serving on http://localhost:%PORT%   - press CTRL+C to stop.
 echo.
-start "" http://localhost:5000
+set "F1_OPEN_BROWSER=1"
 "%VENV_PY%" app.py
 set "RC=%ERRORLEVEL%"
 echo.
+if not "%RC%"=="0" echo  [ERROR] Server exited with code %RC%.
+echo  Server stopped.
+echo.
 pause
 exit /b %RC%
+
+REM ---- CLI ------------------------------------------------------------
+:cli
+"%VENV_PY%" run.py
+set "RC=%ERRORLEVEL%"
+goto cli_done
+
+:cli_args
+"%VENV_PY%" run.py %*
+set "RC=%ERRORLEVEL%"
+
+:cli_done
+echo.
+if not "%RC%"=="0" goto failed
+echo  Done. Open dashboard\index.html to view the forecast.
+echo  Tip: run "run.bat" with no arguments to start the local web app instead.
+echo.
+pause
+exit /b 0
 
 :failed
 echo  [ERROR] run.py exited with code %RC%.

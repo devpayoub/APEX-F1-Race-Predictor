@@ -323,5 +323,29 @@ def not_found(_e):
 
 
 if __name__ == "__main__":
+    import sys
+
     port = int(os.environ.get("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+
+    # run.bat sets this so a double-click lands in a browser once the server is up,
+    # rather than on a "connection refused" page
+    if os.environ.get("F1_OPEN_BROWSER", "").strip().lower() in ("1", "true", "yes", "on"):
+        import webbrowser
+
+        def _open() -> None:
+            time.sleep(1.2)
+            try:
+                webbrowser.open(f"http://localhost:{port}")
+            except Exception:  # noqa: BLE001
+                pass
+
+        threading.Thread(target=_open, daemon=True).start()
+
+    try:
+        app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
+    except OSError as exc:
+        sys.stderr.write(
+            f"\n  Could not start on port {port}: {exc}\n"
+            f"  Something else is probably using it. Try:  set PORT=5001  then run again.\n\n"
+        )
+        raise SystemExit(1) from exc
