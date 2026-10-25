@@ -11,13 +11,37 @@ from .config import CACHE_DIR
 
 OFFLINE = False          # set by run.py --offline; ignores TTL and never refetches
 
+_root_dir: Path | None = None
+
+
+def _root() -> Path:
+    """Resolve the cache root once, falling back to the temp dir if unwritable.
+
+    On a PaaS the home directory is not always writable, and a cache is not worth
+    crashing over — so if the configured path cannot be created we quietly move to
+    the system temp directory instead. This is why no F1_CACHE_DIR env var is
+    required in deployment.
+    """
+    global _root_dir
+    if _root_dir is not None:
+        return _root_dir
+    try:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        _root_dir = CACHE_DIR
+    except OSError:
+        import tempfile
+        alt = Path(tempfile.gettempdir()) / "f1predictor"
+        alt.mkdir(parents=True, exist_ok=True)
+        _root_dir = alt
+    return _root_dir
+
 
 def _key(parts: str) -> str:
     return hashlib.sha1(parts.encode("utf-8")).hexdigest()[:16]
 
 
 def path_for(namespace: str, parts: str) -> Path:
-    d = CACHE_DIR / namespace
+    d = _root() / namespace
     d.mkdir(parents=True, exist_ok=True)
     return d / f"{_key(parts)}.json"
 

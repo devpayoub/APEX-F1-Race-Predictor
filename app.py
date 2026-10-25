@@ -178,13 +178,18 @@ class JobManager:
 
         job.stage = "saving"
         job.progress = 0.995
-        config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        (config.OUTPUT_DIR / "prediction.json").write_text(
-            json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-        DASH.mkdir(parents=True, exist_ok=True)
-        (DASH / "prediction.js").write_text(
-            "window.PREDICTION = " + json.dumps(payload, ensure_ascii=False) + ";\n",
-            encoding="utf-8")
+        # Persisting to disk is a convenience for the static fallback; the result
+        # is already in memory, so a read-only filesystem must not fail the job.
+        try:
+            config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            (config.OUTPUT_DIR / "prediction.json").write_text(
+                json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+            DASH.mkdir(parents=True, exist_ok=True)
+            (DASH / "prediction.js").write_text(
+                "window.PREDICTION = " + json.dumps(payload, ensure_ascii=False) + ";\n",
+                encoding="utf-8")
+        except OSError as exc:
+            app.logger.warning("could not persist prediction to disk: %s", exc)
 
         with LATEST_LOCK:
             LATEST = payload

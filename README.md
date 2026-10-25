@@ -87,7 +87,22 @@ The repo ships a `render.yaml` blueprint, so Render can provision everything in 
 | Build command | `pip install -r requirements.txt` |
 | Start command | `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120` |
 | Health check | `/api/health` |
-| Environment | `PYTHON_VERSION=3.12.5`, `F1_CACHE_DIR=/tmp/f1cache`, `F1_DEFAULT_SIMS=8000` |
+| Environment | **none required** — see below |
+
+### No environment variables needed
+
+Everything has a working default in code, so leave the Render env-var section empty:
+
+| Would-be var | Default in code |
+|---|---|
+| `F1_DEFAULT_SIMS` | `8000` |
+| `F1_MAX_SIMS` | `40000` |
+| `F1_CACHE_DIR` | `~/.cache/f1predictor`, falling back to the temp dir if unwritable |
+| `PYTHON_VERSION` | pinned by the committed `.python-version` file instead |
+| `PORT` | supplied by Render |
+
+The Python version is pinned with `.python-version` rather than an env var because
+Render reads it directly. Only override these if you want different behaviour.
 
 ### Why one worker
 
@@ -100,8 +115,9 @@ another.
 
 - **Spins down after 15 min idle.** The next visit takes ~15 s to wake; the prior is
   retrained in a background thread at boot, so the page itself loads immediately.
-- **Ephemeral disk.** The API cache lives in `/tmp` and repopulates per instance.
-  Expect a slow first prediction after each cold start.
+- **Ephemeral disk.** The API cache repopulates per instance, so expect a slow first
+  prediction after each cold start. The cache falls back to the system temp directory
+  automatically if the home directory is not writable.
 - **512 MB RAM.** Comfortable at 8 000 simulations; 40 000 is available from the
   dropdown if you want it.
 

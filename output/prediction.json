@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at": "2026-10-25T15:39:17+00:00",
+    "generated_at": "2026-10-25T15:47:05+00:00",
     "race": {
       "name": "United States Grand Prix",
       "season": 2026,
@@ -37,12 +37,12 @@
       }
     },
     "conditions": {
-      "air_temp_c": 27.6,
+      "air_temp_c": 27.5,
       "rain_prob": 0.0,
-      "wind_kmh": 14.9,
-      "humidity": 41,
+      "wind_kmh": 15.0,
+      "humidity": 39,
       "source": "open-meteo",
-      "track_temp_c": 40.6,
+      "track_temp_c": 40.5,
       "sc_probability": 0.35,
       "expected_strategy": "1-stop M-H"
     },
